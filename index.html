@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Romantic Moments</title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #fff5f7;
+      --text: #3b2c35;
+      --accent: #ff4d6d;
+      --accent-2: #ffb3c1;
+      --gold: #d4af37;
+      --card: #ffffff;
+      --shadow: 0 10px 30px rgba(0,0,0,0.08);
+    }
+    [data-theme="dark"] {
+      --bg: #1a1418;
+      --text: #f7e9ef;
+      --accent: #ff758f;
+      --accent-2: #ffccd5;
+      --gold: #e6c76b;
+      --card: #241b21;
+      --shadow: 0 10px 30px rgba(0,0,0,0.35);
+    }
+
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Poppins', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      scroll-behavior: smooth;
+    }
+
+    /* Parallax hero */
+    .hero {
+      position: relative;
+      min-height: 80vh;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      overflow: hidden;
+      background: linear-gradient(180deg, rgba(255, 204, 213, 0.35), rgba(255, 245, 247, 0.8));
+    }
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image:
+        radial-gradient(circle at 20% 30%, rgba(255, 77, 109, 0.15) 0 30%, transparent 30%),
+        radial-gradient(circle at 80% 20%, rgba(212, 175, 55, 0.15) 0 25%, transparent 25%),
+        radial-gradient(circle at 50% 80%, rgba(255, 179, 193, 0.2) 0 35%, transparent 35%);
+      transform: translateZ(0);
+      will-change: transform;
+      z-index: 0;
+    }
+    .hero-content {
+      position: relative;
+      z-index: 1;
+      padding: 2rem;
+    }
+    h1 {
+      font-family: 'Great Vibes', cursive;
+      font-size: clamp(2.8rem, 6vw, 5rem);
+      margin: 0 0 0.5rem;
+      color: var(--accent);
+    }
+    .subtitle {
+      font-size: clamp(1rem, 2.5vw, 1.25rem);
+      opacity: 0.85;
+    }
+
+    /* Animated background hearts/stars */
+    .bg-anim {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .heart {
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      background: var(--accent);
+      transform: rotate(45deg);
+      opacity: 0.25;
+      animation: floatUp linear forwards;
+    }
+    .heart::before, .heart::after {
+      content: "";
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      background: var(--accent);
+      border-radius: 50%;
+    }
+    .heart::before { left: -7px; top: 0; }
+    .heart::after { top: -7px; left: 0; }
+    @keyframes floatUp {
+      0% { transform: translateY(0) rotate(45deg); opacity: 0.25; }
+      100% { transform: translateY(-120vh) rotate(45deg); opacity: 0; }
+    }
+
+    /* Layout sections */
+    section {
+      padding: 4rem 1rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .card {
+      background: var(--card);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      padding: 1.5rem;
+    }
+
+    /* Buttons with heart glow */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.8rem 1.2rem;
+      border-radius: 999px;
+      border: none;
+      color: #fff;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 12px 24px rgba(255, 77, 109, 0.35); }
+    .btn .heart-glow {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at var(--x, 50%) var(--y, 50%), rgba(255,255,255,0.35), transparent 40%);
+      mix-blend-mode: screen;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+    .btn:hover .heart-glow { opacity: 1; }
+
+    /* Quotes slider */
+    .slider {
+      position: relative;
+      overflow: hidden;
+    }
+    .slide {
+      min-height: 140px;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      padding: 1.5rem;
+      font-size: clamp(1rem, 2.5vw, 1.25rem);
+      opacity: 0;
+      transform: translateX(20px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+    .slide.active { opacity: 1; transform: translateX(0); }
+    .slider-controls {
+      display: flex;
+      justify-content: center;
+      gap: 0.75rem;
+      margin-top: 1rem;
+    }
+    .dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: #e5a3b0;
+      cursor: pointer;
+      transition: transform 0.2s ease, background 0.2s ease;
+    }
+    .dot.active { background: var(--accent); transform: scale(1.2); }
+
+    /* Countdown */
+    .countdown {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(70px, 1fr));
+      gap: 0.75rem;
+      text-align: center;
+    }
+    .time-box {
+      background: var(--card);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+      padding: 0.8rem;
+    }
+    .time-box h3 {
+      margin: 0;
+      font-size: 1.6rem;
+      color: var(--accent);
+    }
+    .time-box p {
+      margin: 0.25rem 0 0;
+      font-size: 0.9rem;
+      opacity: 0.8;
+    }
+
+    /* Gallery */
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+    }
+    .gallery-item {
+      position: relative;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      transform: translateZ(0);
+    }
+    .gallery-item img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.4s ease;
+    }
+    .gallery-item:hover img { transform: scale(1.06); }
+    .gallery-item .hover-msg {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(180deg, rgba(0,0,0,0.0), rgba(0,0,0,0.45));
+      color: #fff;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      padding: 0.75rem;
+      text-align: center;
+    }
+    .gallery-item:hover .hover-msg { opacity: 1; }
+
+    /* Music player */
+    .player {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .player audio {
+      width: 100%;
+      max-width: 420px;
+    }
+
+    /* Confession form */
+    .form {
+      display: grid;
+      gap: 0.75rem;
+    }
+    .form input, .form textarea {
+      width: 100%;
+      padding: 0.9rem 1rem;
+      border-radius: 12px;
+      border: 1px solid rgba(0,0,0,0.08);
+      background: var(--card);
+      color: var(--text);
+      outline: none;
+      box-shadow: var(--shadow);
+    }
+    .success-anim {
+      display: none;
+      margin-top: 1rem;
+      text-align: center;
+      color: var(--gold);
+      font-weight: 600;
+    }
+    .success-anim.show {
+      display: block;
+      animation: pop 0.6s ease;
+    }
+    @keyframes pop {
+      0% { transform: scale(0.9); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    /* Dark/Light toggle */
+    .toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      user-select: none;
+    }
+    .switch {
+      width: 48px; height: 26px; border-radius: 999px;
+      background: var(--card);
+      box-shadow: var(--shadow);
+      position: relative;
+    }
+    .switch::after {
+      content: "";
+      position: absolute;
+      top: 3px; left: 3px;
+      width: 20px; height: 20px; border-radius: 50%;
+      background: var(--accent);
+      transition: left 0.2s ease;
+    }
+    [data-theme="dark"] .switch::after { left: 25px; }
+
+    /* Scroll-triggered fade-in */
+    .reveal {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Timeline */
+    .timeline {
+      position: relative;
+      margin: 2rem 0;
+      padding-left: 1.5rem;
+    }
+    .timeline::before {
+      content: "";
+      position: absolute;
+      left: 0.5rem;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: linear-gradient(180deg, var(--accent), var(--gold));
+      border-radius: 999px;
+    }
+    .tl-item {
+      position: relative;
+      margin: 1rem 0;
+      padding-left: 1rem;
+    }
+    .tl-item::before {
+      content: "";
+      position: absolute;
+      left: -0.2rem;
+      top: 0.35rem;
+      width: 12px; height: 12px;
+      background: var(--gold);
+      border-radius: 50%;
+      box-shadow: 0 0 0 4px rgba(212,175,55,0.25);
+    }
+    .tl-item h4 {
+      margin: 0 0 0.25rem;
+      color: var(--accent);
+    }
+    .tl-item p {
+      margin: 0;
+      opacity: 0.85;
+    }
+
+    /* Proposal generator */
+    .proposal {
+      display: grid;
+      gap: 0.75rem;
+    }
+    .proposal-output {
+      background: var(--card);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+      padding: 1rem;
+      min-height: 80px;
+      font-family: 'Great Vibes', cursive;
+      font-size: clamp(1.2rem, 3.5vw, 1.8rem);
+      color: var(--accent);
+    }
+
+    /* Surprise popup */
+    .popup {
+      position: fixed;
+      inset: 0;
+      display: none;
+      place-items: center;
+      background: rgba(0,0,0,0.45);
+      z-index: 999;
+    }
+    .popup .popup-card {
+      background: var(--card);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      padding: 1.5rem;
+      max-width: 420px;
+      text-align: center;
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 2rem 1rem;
+      opacity: 0.8;
+    }
+
+    /* Responsive tweaks */
+    @media (max-width: 600px) {
+      .countdown { grid-template-columns: repeat(2, 1fr); }
+      .player audio { max-width: 100%; }
+    }
+  </style>
+</head>
+<body data-theme="light">
+  <!-- Floating hearts container -->
+  <div class="bg-anim" id="bgAnim"></div>
+
+  <!-- Hero with parallax -->
+  <header class="hero" id="hero" data-speed="0.3">
+    <div class="hero-content">
+      <h1>Forever & Always</h1>
+      <p class="subtitle">তোমার সাথে প্রতিটি মুহূর্ত—একটা সুন্দর গল্প।</p>
+      <div style="margin-top:1rem;">
+        <label class="toggle">
+          <span>Romantic Mode</span>
+          <div class="switch" id="themeSwitch" aria-label="Toggle theme"></div>
+        </label>
+      </div>
+      <div style="margin-top:1.25rem;">
+        <button class="btn" id="surpriseBtn">
+          <span>Surprise Me</span>
+          <span class="heart-glow"></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- Love Quotes Slider -->
+    <section class="reveal">
+      <div class="card">
+        <h2 style="margin-top:0;">Love Quotes Slider</h2>
+        <div class="slider" id="quoteSlider">
+          <!-- Slides injected by JS -->
+        </div>
+        <div class="slider-controls" id="sliderDots"></div>
+        <div style="text-align:center; margin-top:0.75rem;">
+          <button class="btn" id="prevQuote"><span>Prev</span><span class="heart-glow"></span></button>
+          <button class="btn" id="nextQuote"><span>Next</span><span class="heart-glow"></span></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Countdown Timer -->
+    <section class="reveal">
+      <div class="card">
+        <h2 style="margin-top:0;">Countdown to Valentine’s Day</h2>
+        <p>বিশেষ দিনের জন্য অপেক্ষা—ভালোবাসা আরও গভীর হয়।</p>
+        <div class="countdown" id="countdown">
+          <div class="time-box"><h3 id="days">0</h3><p>Days</p></div>
+          <div class="time-box"><h3 id="hours">0</h3><p>Hours</p></div>
+          <div class="time-box"><h3 id="minutes">0</h3><p>Minutes</p></div>
+          <div class="time-box"><h3 id="seconds">0</h3><p>Seconds</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Interactive Gallery -->
+    <section class="reveal">
+      <div class="card">
+        <h2 style="margin-top:0;">Memories Gallery</h2>
+        <div class="gallery">
+          <div class="gallery-item">
+            <img src="https://images.unsplash.com/photo-1518199266791-5375a83190b7?q=80&w=1200&auto=format&fit=crop" alt="Memory 1">
+            <div class="hover-msg">প্রথম দেখা—চোখে চোখ রাখা।</div>
+          </div>
+          <div class="gallery-item">
+            <img src="https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=1200&auto=format&fit=crop" alt="Memory 2">
+            <div class="hover-msg">বৃষ্টিতে হাঁটা—হাসির ঝর্ণা।</div>
+          </div>
+          <div class="gallery-item">
+            <img src="https://images.unsplash.com/photo-1513151233558-d860c5398176?q=80&w=1200&auto=format&fit=crop" alt="Memory 3">
+            <div class="hover-msg">চায়ের কাপ—আলাপের সেতু।</div>
+          </div>
+          <div class="gallery-item">
+            <img src="https://images.unsplash.com/photo-1511988617509-a57c8a288659?q=80&w=1200&auto=format&fit=crop" alt="Memory 4">
+            <div class="hover-msg">সূর্যাস্ত—তোমার হাত ধরা।</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Music Player -->
+    <section class="reveal">
+      <div class="card">
+        <h2 style="margin-top:0;">Romantic Music</h2>
+        <div class="player">
+          <audio id="audio" controls>
+            <!-- Replace with your own MP3 for production -->
+            <source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_0a0b0f2f2a.mp3?filename=romantic-ambient-10367.mp3" type="audio/mpeg">
+            Your browser does not support the audio element.
+          </audio>
+          <button class="btn" id="toggleMusic"><span>Play/Pause</span><span class="heart-glow"></span></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Confession Form -->
+    <section class="reveal">
+      <div class="card">
+        <h2 style="margin-top:0;">Love Confession Form</h2>
+        <form class="form" id="confessionForm">
+          <input type="text" name="name" placeholder="তোমার নাম" required />
+          <textarea name="message" rows="4" placeholder="তোমার মনের কথা লিখো..." required></textarea>
+          <button class="btn" type="submit"><span>Submit</span><span class="heart-glow"></span></button>
+        </form>
+        <div class="success-anim" id="successAnim">💖 তোমার মেসেজ পৌঁছে গেছে—ভালোবাসা ছড়িয়ে পড়ুক!</div>
+      </div>
+    </section>
+
+    <!-- Story Timeline -->
+    <section class="reveal">
+      <div class="card">
+        <h2 style="margin-top:0;">Our Story Timeline</h2>
+        <div class="timeline">
+          <div class="tl-item">
+            <h4>Day 1: প্রথম দেখা</h4>
+            <p>একটা হাসি—একটা শুরু।</p>
+          </div>
+          <div class="tl-item">
+            <h4>Day 30: প্রথম ডেট</h4>
+            <p>চায়ের কাপ আর গল্পের নদী।</p>
+          </div>
+          <div class="tl-item">
+            <h4>Day 100: প্রতিশ্রুতি</h4>
+            <p>একসাথে—সবসময়।</p>
+          </div>
+          <div class="tl-item">
+            <h4>Day 365: Anniversary</h4>
+            <p>স্মৃতির অ্যালবাম—ভালোবাসার রঙ।</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Proposal Generator -->
+    <section class="reveal">
+      <div class="card">
+        <h2 style="margin-top:0;">Proposal Generator</h2>
+        <div class="proposal">
+          <input type="text" id="propName" placeholder="তোমার প্রিয়জনের নাম" />
+          <select id="propStyle">
+            <option value="sweet">Sweet</option>
+            <option value="poetic">Poetic</option>
+            <option value="playful">Playful</option>
+            <option value="classic">Classic</option>
+          </select>
+          <button class="btn" id="genProposal"><span>Generate</span><span class="heart-glow"></span></button>
+          <div class="proposal-output" id="proposalOutput">একটা সুন্দর প্রপোজাল এখানে দেখাবে…</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Surprise Popup -->
+  <div class="popup" id="popup">
+    <div class="popup-card">
+      <h3 style="margin-top:0; color: var(--accent); font-family:'Great Vibes', cursive; font-size:1.8rem;">A Little Surprise</h3>
+      <p>তুমি আমার প্রতিটি দিনের সবচেয়ে সুন্দর অংশ।</p>
+      <button class="btn" id="closePopup"><span>Close</span><span class="heart-glow"></span></button>
+    </div>
+  </div>
+
+  <footer>
+    © 2026 Romantic Moments — Made with ❤️
+  </footer>
+
+  <script>
+    // Parallax effect for hero background
+    (function() {
+      const hero = document.getElementById('hero');
+      window.addEventListener('scroll', () => {
+        const speed = parseFloat(hero.dataset.speed || 0.3);
+        hero.style.backgroundPositionY = (window.scrollY * speed) + 'px';
+        hero.style.perspective = '1000px';
+        hero.style.transform = 'translateZ(0)';
+      });
+    })();
+
+    // Floating hearts animation (JS-generated)
+    (function() {
+      const container = document.getElementById('bgAnim');
+      function spawnHeart() {
+        const h = document.createElement('div');
+        h.className = 'heart';
+        const size = Math.random() * 12 + 8;
+        h.style.width = size + 'px';
+        h.style.height = size + 'px';
+        h.style.left = Math.random() * 100 + '%';
+        h.style.bottom = '-20px';
+        h.style.opacity = (Math.random() * 0.4 + 0.15).toFixed(2);
+        const duration = Math.random() * 6 + 6;
+        h.style.animationDuration = duration + 's';
+        container.appendChild(h);
+        setTimeout(() => h.remove(), duration * 1000);
+      }
+      setInterval(spawnHeart, 600);
+    })();
+
+    // Button heart glow tracking
+    document.querySelectorAll('.btn').forEach(btn => {
+      const glow = btn.querySelector('.heart-glow');
+      btn.addEventListener('mousemove', e => {
+        const rect = btn.getBoundingClientRect();
+        const x = ((e.clientX - rect.left) / rect.width) * 100 + '%';
+        const y = ((e.clientY - rect.top) / rect.height) * 100 + '%';
+        glow.style.setProperty('--x', x);
+        glow.style.setProperty('--y', y);
+      });
+    });
+
+    // Theme toggle
+    (function() {
+      const switchEl = document.getElementById('themeSwitch');
+      const root = document.body;
+      const saved = localStorage.getItem('romantic-theme');
+      if (saved) root.setAttribute('data-theme', saved);
+      switchEl.addEventListener('click', () => {
+        const current = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        root.setAttribute('data-theme', current);
+        localStorage.setItem('romantic-theme', current);
+      });
+    })();
+
+    // Scroll-triggered reveal
+    (function() {
+      const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) entry.target.classList.add('visible');
+        });
+      }, { threshold: 0.15 });
+      document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+    })();
+
+    // Quotes slider
+    (function() {
+      const quotes = [
+        '“তোমার হাসি—আমার সকাল।”',
+        '“তোমার হাত—আমার নিরাপত্তা।”',
+        '“তোমার চোখে—আমার পৃথিবী।”',
+        '“তুমি থাকলে—সবকিছু সহজ।”',
+        '“ভালোবাসা—তোমার নামেই লেখা।”'
+      ];
+      const slider = document.getElementById('quoteSlider');
+      const dots = document.getElementById('sliderDots');
+      let index = 0;
+
+      function render() {
+        slider.innerHTML = '';
+        quotes.forEach((q, i) => {
+          const div = document.createElement('div');
+          div.className = 'slide' + (i === index ? ' active' : '');
+          div.textContent = q;
+          slider.appendChild(div);
+        });
+        dots.innerHTML = '';
+        quotes.forEach((_, i) => {
+          const d = document.createElement('div');
+          d.className = 'dot' + (i === index ? ' active' : '');
+          d.addEventListener('click', () => { index = i; render(); });
+          dots.appendChild(d);
+        });
+      }
+      render();
+
+      document.getElementById('prevQuote').addEventListener('click', () => {
+        index = (index - 1 + quotes.length) % quotes.length;
+        render();
+      });
+      document.getElementById('nextQuote').addEventListener('click', () => {
+        index = (index + 1) % quotes.length;
+        render();
+      });
+
+      setInterval(() => {
+        index = (index + 1) % quotes.length;
+        render();
+      }, 5000);
+    })();
+
+    // Countdown to next Valentine's Day (Feb 14)
+    (function() {
+      const daysEl = document.getElementById('days');
+      const hoursEl = document.getElementById('hours');
+      const minutesEl = document.getElementById('minutes');
+      const secondsEl = document.getElementById('seconds');
+
+      function nextValentine() {
+        const now = new Date();
+        const year = now.getMonth() > 1 || (now.getMonth() === 1 && now.getDate() > 14)
+          ? now.getFullYear() + 1
+          : now.getFullYear();
+        return new Date(year, 1, 14, 0, 0, 0); // Feb is month 1 (0-indexed)
+      }
+      function update() {
+        const target = nextValentine();
+        const diff = target - new Date();
+        if (diff <= 0) return;
+        const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
+        const m = Math.floor((diff / (1000 * 60)) % 60);
+        const s = Math.floor((diff / 1000) % 60);
+        daysEl.textContent = d;
+        hoursEl.textContent = h;
+        minutesEl.textContent = m;
+        secondsEl.textContent = s;
+      }
+      update();
+      setInterval(update, 1000);
+    })();
+
+    // Music player controls
+    (function() {
+      const audio = document.getElementById('audio');
+      const btn = document.getElementById('toggleMusic');
+      btn.addEventListener('click', () => {
+        if (audio.paused) audio.play();
+        else audio.pause();
+      });
+    })();
+
+    // Confession form animation
+    (function() {
+      const form = document.getElementById('confessionForm');
+      const success = document.getElementById('successAnim');
+      form.addEventListener('submit', e => {
+        e.preventDefault();
+        success.classList.add('show');
+        // Simple confetti hearts
+        for (let i = 0; i < 12; i++) {
+          const h = document.createElement('div');
+          h.className = 'heart';
+          h.style.left = Math.random() * 100 + '%';
+          h.style.bottom = '0';
+          h.style.opacity = '0.6';
+          h.style.animationDuration = (Math.random() * 2 + 2) + 's';
+          document.body.appendChild(h);
+          setTimeout(() => h.remove(), 4000);
+        }
+        form.reset();
+        setTimeout(() => success.classList.remove('show'), 2500);
+      });
+    })();
+
+    // Surprise popup (timed + button)
+    (function() {
+      const popup = document.getElementById('popup');
+      const closeBtn = document.getElementById('closePopup');
+      const surpriseBtn = document.getElementById('surpriseBtn');
+
+      function openPopup() { popup.style.display = 'grid'; }
+      function closePopup() { popup.style.display = 'none'; }
+
+      closeBtn.addEventListener('click', closePopup);
+      surpriseBtn.addEventListener('click', openPopup);
+
+      // Timed surprise after 12 seconds
+      setTimeout(openPopup, 12000);
+    })();
+
+    // Proposal generator
+    (function() {
+      const nameEl = document.getElementById('propName');
+      const styleEl = document.getElementById('propStyle');
+      const outEl = document.getElementById('proposalOutput');
+      const btn = document.getElementById('genProposal');
+
+      const templates = {
+        sweet: (n) => `প্রিয় ${n || 'তুমি'}, তোমার হাসিতে আমার সকাল, তোমার চোখে আমার পৃথিবী—তুমি কি আমার হবে?`,
+        poetic: (n) => `${n || 'তুমি'}, চাঁদের আলোয় লেখা কবিতা, বাতাসে ভেসে আসা গান—আমার প্রতিটি লাইনে তুমি। আমাকে হ্যাঁ বলবে?`,
+        playful: (n) => `হে ${n || 'সুইটি'}, চা-খাবো, হাঁটবো, হাসবো—আর হ্যাঁ বলবে? কারণ আমি তোমাকে খুবই পছন্দ করি!`,
+        classic: (n) => `Dear ${n || 'Love'}, every day with you feels like home. Will you be mine—today, tomorrow, always?`
+      };
+
+      btn.addEventListener('click', () => {
+        const name = nameEl.value.trim();
+        const style = styleEl.value;
+        outEl.textContent = templates[style](name);
+      });
+    })();
+  </script>
+</body>
+</html>
